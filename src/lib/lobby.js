@@ -73,10 +73,35 @@ export async function updateLobbySettings(code, settings) {
   await updateDoc(doc(db, "lobbies", code), { settings });
 }
 
+// Exported so Round.jsx's on-screen "Time's up" -> countdown -> navigate
+// sequence uses these exact same numbers, rather than a second copy that
+// could drift out of sync with the deadline stamped below.
+export const VOTING_STATIC_MESSAGE_MS = 2000;
+export const VOTING_COUNTDOWN_SECONDS = 5;
+export const ROUND_TO_VOTING_TRANSITION_MS = VOTING_STATIC_MESSAGE_MS + VOTING_COUNTDOWN_SECONDS * 1000;
+const VOTING_DURATION_MS = 15000;
+
 // Idempotent: safe for multiple clients to call at once when they all notice
-// the round is fully submitted, no need to elect a single writer.
+// the round is fully submitted, no need to elect a single writer. Also stamps
+// the round with a voting deadline (mirrors how startRound stamps endsAt) so
+// every client can run its own forced-transition countdown on the voting
+// screen, same pattern as the round timer. The deadline starts counting from
+// when players actually LAND on the voting screen, not from this call —
+// players spend ROUND_TO_VOTING_TRANSITION_MS still watching the round page's
+// own countdown first, so that gets added on top of the visible 15s.
 export async function advanceToVoting(code) {
-  await updateDoc(doc(db, "lobbies", code), { status: "voting" });
+  const batch = writeBatch(db);
+  batch.update(doc(db, "lobbies", code), { status: "voting" });
+  batch.update(doc(db, "rounds", code), {
+    votingEndsAt: Date.now() + ROUND_TO_VOTING_TRANSITION_MS + VOTING_DURATION_MS,
+  });
+  await batch.commit();
+}
+
+// Same idempotent, no-elected-writer pattern as advanceToVoting, triggered
+// once every player has cast a vote.
+export async function advanceToResults(code) {
+  await updateDoc(doc(db, "lobbies", code), { status: "results" });
 }
 
 // Round doc id matches the lobby code, one lobby = one round at a time.
