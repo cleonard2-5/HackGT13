@@ -3,8 +3,7 @@ import Navbar from './Navbar'
 export default function Vistool() {
   const Topics = [
     'Background', 
-    { title: 'Border', subItems: ['Border Radius', 'Border Style'] }, 
-    'Color', 
+    { title: 'Border', subItems: ['Border Radius', 'Border Style'] },  
     'Dimensions', 
     'Display', 
     'Flex', 
@@ -61,6 +60,9 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6">
               The border property dictates the boundary around an element's content and padding.
             </p>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              border: border-width border-style border-color;
+            </p>
 
             <div id="border-radius" className="mb-8 scroll-mt-24 pt-4 border-t border-slate-300 dark:border-slate-700">
               <h4 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">Border Radius</h4>
@@ -77,19 +79,17 @@ export default function Vistool() {
             </div>
           </section>
 
-          {/* COLOR SECTION */}
-          <section id="color" className='p-8 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-xl shadow-lg scroll-mt-24'>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Color</h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
-              Sets the foreground color value of an element's text content and text decorations.
-            </p>
-          </section>
-
           {/* DIMENSIONS SECTION */}
           <section id="dimensions" className='p-8 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-xl shadow-lg scroll-mt-24'>
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Dimensions</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Controls the width and height properties of an element, dictating its overall size within the layout document.
+            </p>
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              width: lenth;
+            </p>
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              height: length;
             </p>
           </section>
 
@@ -99,6 +99,10 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Determines whether an element is treated as a block or inline element, and sets the layout model used for its children.
             </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              display: value;
+            </p>
           </section>
 
           {/* FLEX SECTION */}
@@ -106,6 +110,10 @@ export default function Vistool() {
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Flex</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Flexbox provides a one-dimensional layout method for arranging items in rows or columns, managing their alignment and space distribution.
+            </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              flex: flex-grow flex-shirnk flex-basis;
             </p>
             
             <div className="flex flex-col gap-6">
@@ -136,6 +144,10 @@ export default function Vistool() {
               Defines the typographic characteristics of text elements, dictating how characters are rendered.
             </p>
 
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              font-size: font-style font-variant font-weight font-size font-family;
+            </p>
+
             <div id="font-size" className="mb-8 scroll-mt-24 pt-4 border-t border-slate-300 dark:border-slate-700">
               <h4 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">Font Size</h4>
               <p className="text-slate-600 dark:text-slate-400 mb-4">
@@ -157,13 +169,26 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Provides a two-dimensional layout system that organizes content into a matrix of columns and rows.
             </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              grid: none|grid-template-rows|columns|areas
+            </p>
           </section>
 
           {/* JUSTIFY & ALIGN SECTION */}
           <section id="justify-&-align" className='p-8 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-xl shadow-lg scroll-mt-24'>
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Justify & Align</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
-              Controls the alignment and spacing of items across the main axis (justify) and cross axis (align) within flexbox or grid containers.
+              Controls the alignment and spacing of items across the horizontal axis (justify) and vertical axis (align) within flexbox or grid containers.
+            </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              justify-content: stretch|center|flex-start|flex-end|space-between|space-around|space-evenly;<br></br>
+              justify-items: normal|stretch|positional alignment|flex-start|flex-end|baseline;<br></br>
+              justify-self: auto|stretch|center|flex-start|flex-end|baseline;<br></br>
+              align-content: stretch|center|flex-start|flex-end|space-between|space-around|space-evenly;<br></br>
+              align-items: normal|stretch|positional alignment|flex-start|flex-end|baseline;<br></br>
+              align-self: auto|stretch|center|flex-start|flex-end|baseline;
             </p>
           </section>
 
@@ -173,6 +198,10 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Creates space around elements, completely outside of any defined borders, effectively pushing adjacent elements away.
             </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              margin: length;
+            </p>
           </section>
 
           {/* PADDING SECTION */}
@@ -180,6 +209,10 @@ export default function Vistool() {
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Padding</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Creates internal space around an element's content, pushing the border outward and increasing the element's total size.
+            </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              padding: length;
             </p>
             
             <div className="flex gap-8">
@@ -205,6 +238,14 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Specifies how an element is positioned in a document (static, relative, absolute, fixed, or sticky) and anchors it using directional offsets.
             </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              position: static|absolute|fixed|relative|sticky;<br></br>
+              left: length;<br></br>
+              right: length;<br></br>
+              top: length;<br></br>
+              bottom: length;
+            </p>
           </section>
 
           {/* SHADOW SECTION */}
@@ -212,6 +253,11 @@ export default function Vistool() {
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Shadow</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Applies drop shadows to the element's bounding box (box-shadow) or directly to its text (text-shadow) to create the illusion of depth.
+            </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              box-shadow: h-offset v-offset blur spread color ;<br></br>
+              text-shadow: h-shadow v-shadow blur-radius color;
             </p>
           </section>
 
@@ -221,6 +267,11 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Modifies the coordinate space of the CSS visual formatting model, allowing elements to be rotated, scaled, skewed, or translated.
             </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              transform: transform-functions;
+            </p>
+            {/* Table with each function, and a description */}
           </section>
 
           {/* Z-INDEX SECTION */}
@@ -228,6 +279,10 @@ export default function Vistool() {
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Z-Index</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Controls the vertical stacking order of elements that overlap, determining which elements appear in front of others.
+            </p>
+
+            <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
+              z-index: number;
             </p>
           </section>
         </div>
