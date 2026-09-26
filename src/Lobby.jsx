@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Navbar from './Navbar'
-import { subscribeLobby, updateLobbySettings, startRound } from './lib/lobby'
+import { subscribeLobby, updateLobbySettings, startRound, joinLobby } from './lib/lobby'
 import { getPlayerId } from './lib/playerId'
 
 const DIFFICULTIES = ['easy', 'medium', 'hard']
@@ -11,6 +11,8 @@ export default function Lobby() {
   const navigate = useNavigate()
   const [lobby, setLobby] = useState(undefined) // undefined = loading, null = not found
   const [error, setError] = useState('')
+  const [joinName, setJoinName] = useState('')
+  const [joining, setJoining] = useState(false)
 
   const playerId = getPlayerId()
 
@@ -56,6 +58,23 @@ export default function Lobby() {
 
   const isHost = lobby.hostId === playerId
   const navbarPlayers = (lobby.players || []).map((p) => ({ ...p, isSelf: p.id === playerId }))
+  const isMember = (lobby.players || []).some((p) => p.id === playerId)
+
+  async function handleJoin() {
+    setError('')
+    if (!joinName.trim()) {
+      setError('Enter a name to join')
+      return
+    }
+    setJoining(true)
+    try {
+      await joinLobby(code, { id: playerId, name: joinName.trim() })
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setJoining(false)
+    }
+  }
 
   async function handleSettingChange(key, value) {
     setError('')
@@ -73,6 +92,37 @@ export default function Lobby() {
     } catch (err) {
       setError(err.message)
     }
+  }
+
+  if (!isMember) {
+    return (
+      <div className="flex flex-col items-center justify-center grow p-8">
+        <div className="w-full max-w-md p-8 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-xl shadow-lg">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Join lobby {lobby.code}</h2>
+          <p className="mb-4 text-slate-600 dark:text-slate-400">Enter a name to join this lobby and see who else is here.</p>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-md bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-sm">
+              {error}
+            </div>
+          )}
+
+          <input
+            className="w-full mb-3 px-3 py-2 rounded-md bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700"
+            placeholder="Your name"
+            value={joinName}
+            onChange={(e) => setJoinName(e.target.value)}
+          />
+          <button
+            disabled={joining}
+            onClick={handleJoin}
+            className="w-full px-5 py-2.5 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+          >
+            Join Lobby
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
