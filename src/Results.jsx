@@ -1,11 +1,12 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { subscribeLobby } from './lib/lobby'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { subscribeLobby, returnToLobby, leaveLobby } from './lib/lobby'
 import { subscribeRound } from './lib/round'
 import { subscribeSubmissions } from './lib/submission'
 import { subscribeVotes } from './lib/vote'
 import { resolveWinners } from './lib/tally'
 import { getTargetById } from './lib/targets'
+import { getPlayerId } from './lib/playerId'
 import SandboxFrame from './SandboxFrame'
 
 // Sentinel for the preview toggle, distinct from any real (UUID) playerId.
@@ -54,12 +55,16 @@ function useFitPreviewSize() {
 
 export default function Results() {
   const { code } = useParams()
+  const navigate = useNavigate()
   const [lobby, setLobby] = useState(undefined)
   const [round, setRound] = useState(undefined)
   const [submissions, setSubmissions] = useState([])
   const [votes, setVotes] = useState([])
   const [selectedView, setSelectedView] = useState(null)
+  const [error, setError] = useState('')
   const [stageRef, previewSize] = useFitPreviewSize()
+
+  const playerId = getPlayerId()
 
   useEffect(() => {
     if (!code) return
@@ -122,6 +127,26 @@ export default function Results() {
   const activeWinnerId = activeView === TARGET_VIEW ? null : activeView
   const activeSubmission = activeWinnerId ? submissionsByPlayerId[activeWinnerId] : null
 
+  async function handleReturnToLobby() {
+    setError('')
+    try {
+      await returnToLobby(code)
+      navigate(`/lobby/${code}`)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  async function handleLeaveLobby() {
+    setError('')
+    try {
+      await leaveLobby(code, playerId)
+      navigate('/')
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   return (
     // Fixed to exactly the viewport minus the header (the 73px figure matches
     // Navbar.jsx / Vistool.jsx) with overflow-hidden, rather than "grow": the
@@ -132,8 +157,30 @@ export default function Results() {
     <div className="flex flex-col h-[calc(100vh-73px)] overflow-hidden w-full p-8 pb-[73px] gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Results</h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400">Lobby: <span className="font-mono">{lobby.code}</span></p>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">Lobby: <span className="font-mono">{lobby.code}</span></p>
+          <button
+            type="button"
+            onClick={handleReturnToLobby}
+            className="px-3 py-1.5 text-sm bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-md transition-colors"
+          >
+            Return to Lobby
+          </button>
+          <button
+            type="button"
+            onClick={handleLeaveLobby}
+            className="px-3 py-1.5 text-sm bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors"
+          >
+            Leave Lobby
+          </button>
+        </div>
       </div>
+
+      {error && (
+        <div className="p-3 rounded-md bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-sm">
+          {error}
+        </div>
+      )}
 
       <div className="flex flex-col grow min-h-0 gap-4">
         <div className="flex flex-wrap items-center gap-2">
