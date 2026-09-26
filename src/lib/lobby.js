@@ -73,6 +73,12 @@ export async function updateLobbySettings(code, settings) {
   await updateDoc(doc(db, "lobbies", code), { settings });
 }
 
+// Idempotent: safe for multiple clients to call at once when they all notice
+// the round is fully submitted, no need to elect a single writer.
+export async function advanceToVoting(code) {
+  await updateDoc(doc(db, "lobbies", code), { status: "voting" });
+}
+
 // Round doc id matches the lobby code, one lobby = one round at a time.
 export async function startRound(code) {
   const lobbyRef = doc(db, "lobbies", code);
