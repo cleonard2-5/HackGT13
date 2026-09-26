@@ -19,7 +19,7 @@ export default function Navbar({ type, items }) {
         onClick={() => setIsOpen(!isOpen)}
         className="md:hidden fixed bottom-6 right-6 z-50 px-4 py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-full shadow-lg transition-colors"
       >
-        {isOpen ? 'Close Menu' : 'Topics Menu'}
+        {isOpen ? 'Close List' : 'Player List'}
       </button>
 
       {isOpen && (
@@ -43,7 +43,7 @@ export default function Navbar({ type, items }) {
                 <li key={index}>
                   <div className="flex items-center gap-3 p-2 rounded-md bg-slate-200/50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 shadow-sm">
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
-                    {item}
+                    <span className={item.isSelf ? 'font-bold' : ''}>{item.name}</span>
                   </div>
                 </li>
               )
