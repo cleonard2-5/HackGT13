@@ -1,4 +1,20 @@
+import { useState } from 'react'
+
 export default function Navbar({ type, items }) {
+  // Tracks the mobile sidebar visibility
+  const [isOpen, setIsOpen] = useState(false)
+  // Dropdo
+  const [openDropdowns, setOpenDropdowns] = useState({})
+
+  const toId = (str) => str.toLowerCase().replace(/\s+/g, '-')
+
+  const toggleDropdown = (title) => {
+    setOpenDropdowns((prev) => ({
+      ...prev,
+      [title]: !prev[title]
+    }))
+  }
+
   return (
     <aside className="w-64 shrink-0 border-r border-slate-300 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-900/50 p-6 flex flex-col min-h-full">
       <h3 className="text-sm font-bold text-sky-600 dark:text-sky-400 mb-4 uppercase tracking-wider">
