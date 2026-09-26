@@ -32,4 +32,6 @@
 4. Target library beyond the minimum 6 (2 per difficulty)
 
 ## Current State
-- Nothing developed yet.
+- Basic UI and Firebase setup.
+- Lobby logic set up: users can create lobbies with randomized codes, and other players can join. The host is a player too (included in `players[]` on creation, votes/submits like anyone else). Non-host players see the host's settings changes live (read-only) via the same Firestore listener. Each player's own name is bolded in their player list so they can tell which one is them.
+- Visiting `/lobby/:code` directly now gates on membership (checks `playerId` against `players[]`) and shows a join form instead of the full lobby if you're not in it yet — closes the "copy-pasted the link without joining" UX hole. Note: this is a UI-level check only, not a security boundary — see note below.
