@@ -14,8 +14,7 @@ export default function Vistool() {
     'Margin', 
     'Padding', 
     'Position', 
-    'Shadow', 
-    { title: 'Text', subItems: ['Text Align', 'Text Decoration'] },
+    'Shadow',
     'Transform', 
     'Z-index'
   ]
@@ -214,28 +213,6 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6 pb-4 border-b border-slate-300 dark:border-slate-700">
               Applies drop shadows to the element's bounding box (box-shadow) or directly to its text (text-shadow) to create the illusion of depth.
             </p>
-          </section>
-
-          {/* TEXT SECTION */}
-          <section id="text" className='p-8 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-xl shadow-lg scroll-mt-24'>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">Text</h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
-              Manages the visual formatting, layout, and decorative aspects of text content.
-            </p>
-
-            <div id="text-align" className="mb-8 scroll-mt-24 pt-4 border-t border-slate-300 dark:border-slate-700">
-              <h4 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">Text Align</h4>
-              <p className="text-slate-600 dark:text-slate-400 mb-4">
-                Sets the horizontal alignment of inline-level content inside a block element (e.g., left, right, center, justify).
-              </p>
-            </div>
-
-            <div id="text-decoration" className="mb-8 scroll-mt-24 pt-4 border-t border-slate-300 dark:border-slate-700">
-              <h4 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">Text Decoration</h4>
-              <p className="text-slate-600 dark:text-slate-400 mb-4">
-                Adds decorative lines to text, such as underlines, overlines, or line-throughs.
-              </p>
-            </div>
           </section>
 
           {/* TRANSFORM SECTION */}
