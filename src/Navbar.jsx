@@ -3,7 +3,7 @@ import { useState } from 'react'
 export default function Navbar({ type, items }) {
   // Tracks the mobile sidebar visibility
   const [isOpen, setIsOpen] = useState(false)
-  // Dropdo
+  // Dropdown
   const [openDropdowns, setOpenDropdowns] = useState({})
 
   const toId = (str) => str.toLowerCase().replace(/\s+/g, '-')
