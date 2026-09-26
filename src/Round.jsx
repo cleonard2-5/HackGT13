@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { subscribeLobby, advanceToVoting } from './lib/lobby'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import {
+  subscribeLobby,
+  advanceToVoting,
+  VOTING_STATIC_MESSAGE_MS,
+  ROUND_TO_VOTING_TRANSITION_MS,
+} from './lib/lobby'
 import { subscribeRound } from './lib/round'
 import { submitEntry, getSubmission } from './lib/submission'
 import { loadDraft, saveDraft, clearDraft } from './lib/draft'
@@ -14,8 +19,17 @@ const DEFAULT_CSS = '.box {\n  background: steelblue;\n  color: white;\n  width:
 // and force-submitting empty on their behalf — see the effect below.
 const OTHERS_GRACE_MS = 4000
 
+// After the lobby flips to "voting", players see the static "Time's up" /
+// "All submissions received" message for a couple seconds, then a 5s visual
+// countdown (same color as that message) before this client navigates away —
+// so the transition is never a surprise cut. Imported from lib/lobby.js
+// rather than redefined here: advanceToVoting stamps the voting page's own
+// 15s deadline starting AFTER this same delay, so the two must stay in sync.
+const VOTING_TRANSITION_DELAY_MS = ROUND_TO_VOTING_TRANSITION_MS
+
 export default function Round() {
   const { code } = useParams()
+  const navigate = useNavigate()
   const [lobby, setLobby] = useState(undefined)
   const [round, setRound] = useState(undefined)
   const [html, setHtml] = useState(DEFAULT_HTML)
@@ -26,6 +40,12 @@ export default function Round() {
   const [restored, setRestored] = useState(false)
   const [submittedLocally, setSubmittedLocally] = useState(false)
   const [now, setNow] = useState(() => Date.now())
+  const [votingStartedAt, setVotingStartedAt] = useState(null)
+  // Frozen at the instant voting starts, rather than kept live off
+  // timeUp/allSubmitted — those could in principle both flip true before the
+  // 7s window is over, and we want the countdown's color locked in to
+  // whichever message the player actually saw, not to redraw mid-countdown.
+  const [votingColor, setVotingColor] = useState(null)
   const selfAutoSubmitFired = useRef(false)
   const othersAutoSubmitFired = useRef(false)
 
@@ -101,6 +121,27 @@ export default function Round() {
     }
   }, [round, lobby, code])
 
+  // Record the moment this client first sees "voting" land, so the render
+  // below can derive the static-message and countdown phases from it (via
+  // the existing 1s `now` tick) instead of a separate, independently-drifting
+  // setTimeout.
+  useEffect(() => {
+    if (lobby?.status !== 'voting' || votingStartedAt !== null) return
+    const roundTimeUp = round ? Date.now() >= round.endsAt : false
+    setVotingStartedAt(Date.now())
+    setVotingColor(roundTimeUp ? 'red' : 'emerald')
+  }, [lobby?.status, votingStartedAt, round])
+
+  // Give players a moment to see the "all submitted" state before the screen
+  // changes out from under them, rather than cutting away the instant the
+  // status flips. Fires once and this component unmounts on navigation, so
+  // no extra guard is needed against repeat calls.
+  useEffect(() => {
+    if (votingStartedAt === null) return
+    if (now - votingStartedAt < VOTING_TRANSITION_DELAY_MS) return
+    navigate(`/voting/${code}`)
+  }, [now, votingStartedAt, code, navigate])
+
   // At timer zero, this client submits its own current editor content for
   // itself. Deliberately gated on local state (submittedLocally), NOT on
   // round.submittedPlayerIds: every tab runs its own independent 1s
@@ -169,11 +210,19 @@ export default function Round() {
 
   const target = round ? getTargetById(round.targetId) : null
   const hasSubmitted = (round?.submittedPlayerIds || []).includes(playerId)
+  const submittedCount = (round?.submittedPlayerIds || []).length
+  const playerCount = (lobby?.players || []).length
+  const allSubmitted = playerCount > 0 && submittedCount >= playerCount
   const remainingSeconds = round ? Math.max(0, Math.ceil((round.endsAt - now) / 1000)) : 0
   const timeUp = round ? now >= round.endsAt : false
   const minutes = Math.floor(remainingSeconds / 60)
   const seconds = remainingSeconds % 60
   const timeLabel = `${minutes}:${String(seconds).padStart(2, '0')}`
+
+  const votingElapsedMs = votingStartedAt === null ? 0 : now - votingStartedAt
+  const inVotingCountdownPhase = votingStartedAt !== null && votingElapsedMs >= VOTING_STATIC_MESSAGE_MS
+  const votingCountdownSeconds = Math.max(0, Math.ceil((VOTING_TRANSITION_DELAY_MS - votingElapsedMs) / 1000))
+  const votingColorClass = votingColor === 'red' ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'
 
   async function handleSubmit() {
     if (!round) {
@@ -198,8 +247,22 @@ export default function Round() {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Round in progress</h2>
         <div className="flex items-center gap-4">
-          <p className={`text-xl font-mono font-bold ${timeUp ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}`}>
-            {timeUp ? "Time's up" : timeLabel}
+          <p className={`text-xl font-mono font-bold ${
+            inVotingCountdownPhase
+              ? votingColorClass
+              : timeUp
+                ? 'text-red-600 dark:text-red-400'
+                : allSubmitted
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-slate-900 dark:text-slate-100'
+          }`}>
+            {inVotingCountdownPhase
+              ? `Voting in ${votingCountdownSeconds}...`
+              : timeUp
+                ? "Time's up"
+                : allSubmitted
+                  ? 'All submissions received'
+                  : timeLabel}
           </p>
           <p className="text-sm text-slate-600 dark:text-slate-400">Lobby: <span className="font-mono">{lobby.code}</span></p>
         </div>
@@ -234,10 +297,12 @@ export default function Round() {
             />
           </div>
 
-          {hasSubmitted ? (
-            <p className="text-sm text-slate-600 dark:text-slate-400">Submitted — waiting for other players...</p>
-          ) : timeUp ? (
+          {timeUp ? (
             <p className="text-sm text-slate-600 dark:text-slate-400">Time's up — submitting your entry...</p>
+          ) : allSubmitted ? (
+            <p className="text-sm text-slate-600 dark:text-slate-400">All submissions received — moving to voting...</p>
+          ) : hasSubmitted ? (
+            <p className="text-sm text-slate-600 dark:text-slate-400">Submitted — waiting for other players...</p>
           ) : (
             <button
               onClick={handleSubmit}
@@ -262,7 +327,7 @@ export default function Round() {
               Swap
             </button>
           </div>
-          <div className="grow min-h-[240px] rounded-md overflow-hidden border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900">
+          <div className="relative grow min-h-[240px] rounded-md overflow-hidden border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900">
             {showTarget ? (
               target ? (
                 <img
@@ -274,7 +339,7 @@ export default function Round() {
                 <div className="flex items-center justify-center h-full text-slate-500">No target for this round</div>
               )
             ) : (
-              <SandboxFrame html={html} css={css} title="your submission preview" className="h-full" />
+              <SandboxFrame html={html} css={css} title="your submission preview" />
             )}
           </div>
         </div>
