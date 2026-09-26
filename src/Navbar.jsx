@@ -6,11 +6,11 @@ export default function Navbar({ type, items }) {
       </h3>
       <ul className="flex flex-col gap-2">
         {items.map((item, index) => (
-          <li key={index}>
+          <li key={item?.id ?? index}>
             {type === 'players' ? (
               <div className="flex items-center gap-3 p-2 rounded-md bg-slate-200/50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 shadow-sm">
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
-                {item}
+                <span className={item?.isSelf ? 'font-bold' : ''}>{item?.name ?? item}</span>
               </div>
             ) : (
               <a 
