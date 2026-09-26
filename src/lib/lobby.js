@@ -1,5 +1,6 @@
 import { db } from "../firebase";
-import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, onSnapshot, writeBatch, serverTimestamp } from "firebase/firestore";
+import { pickRandomTargetId } from "./targets";
 
 // Excludes 0/O and 1/I so codes read back over voice/screen without ambiguity.
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -72,6 +73,26 @@ export async function updateLobbySettings(code, settings) {
   await updateDoc(doc(db, "lobbies", code), { settings });
 }
 
+// Round doc id matches the lobby code, one lobby = one round at a time.
 export async function startRound(code) {
-  await updateDoc(doc(db, "lobbies", code), { status: "round" });
+  const lobbyRef = doc(db, "lobbies", code);
+  const lobbySnap = await getDoc(lobbyRef);
+  if (!lobbySnap.exists()) {
+    throw new Error("Lobby not found");
+  }
+  const lobby = lobbySnap.data();
+  const timeLimit = lobby.settings?.timeLimit ?? 120;
+  const difficulty = lobby.settings?.difficulty ?? "easy";
+  const targetId = pickRandomTargetId(difficulty);
+
+  const batch = writeBatch(db);
+  batch.update(lobbyRef, { status: "round" });
+  batch.set(doc(db, "rounds", code), {
+    lobbyId: code,
+    targetId,
+    startedAt: serverTimestamp(),
+    endsAt: Date.now() + timeLimit * 1000,
+    submittedPlayerIds: [],
+  });
+  await batch.commit();
 }
