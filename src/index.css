@@ -2,13 +2,67 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-700 min-h-screen flex flex-col m-0;
+    /* Removed bg-slate-50, kept layout properties */
+    @apply text-slate-700 min-h-screen flex flex-col m-0;
+    
+    /* Custom Scrollbar Styling (Applies Globally) */
+
+    /* Firefox */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+    }
+
+    /* Chrome, Edge, Safari */
+    ::-webkit-scrollbar {
+      width: 8px; /* Width of vertical scrollbar */
+      height: 8px; /* Height of horizontal scrollbar */
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent; /* Makes the track invisible so the beach shows through */
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.5); /* Translucent slate color */
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.8); /* Darkens slightly on hover */
+    }
+    /* Custom CSS Beach Gradient */
+    background-image: linear-gradient(
+      to bottom,
+      #bae6fd 0%,    /* Sky */
+      #7dd3fc 15%,   /* Lower Sky */
+      #0284c7 30%,   /* Ocean Horizon */
+      #38bdf8 50%,   /* Ocean Water */
+      #93c5fd 55%,   /* Shoreline Foam */
+      #fde68a 60%,   /* Wet Sand */
+      #fef08a 100%   /* Dry Sand */
+    );
+    /* Keeps the beach fixed in place while you scroll the content */
+    background-attachment: fixed;
   }
   
   /* Applies dark mode base colors automatically based on system preference */
   @media (prefers-color-scheme: dark) {
     body {
-      @apply bg-slate-950 text-slate-400;
+      /* Removed bg-slate-950 */
+      @apply text-slate-400;
+      
+      /* Custom CSS Night Beach Gradient */
+      background-image: linear-gradient(
+        to bottom,
+        #06072d 0%,    /* Night Sky */
+        #080a74 15%,   /* Lower Night Sky */
+        #1d3487 30%,   /* Dark Ocean Horizon */
+        #0369a1 50%,   /* Dark Ocean Water */
+        #075985 55%,   /* Dark Shoreline */
+        #57534e 60%,   /* Dark Wet Sand */
+        #78716c 100%   /* Dark Dry Sand */
+      );
     }
   }
 
