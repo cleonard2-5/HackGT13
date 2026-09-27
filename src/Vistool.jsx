@@ -21,6 +21,31 @@ export default function Vistool() {
 
   // State: Background
   const [bgColor, setBgColor] = useState('#0ea5e9')
+  // State: Background Gradient
+  const [gradColor1, setGradColor1] = useState('#7dd3fc')
+  const [gradColor2, setGradColor2] = useState('#fde68a')
+  const [gradDirection, setGradDirection] = useState('to bottom right')
+  // Helper function to calculate if a color is light or dark
+const getContrastColor = (hexColor) => {
+  // Check if it's a valid hex code, default to white if not
+  if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hexColor)) return '#ffffff';
+  
+  let hex = hexColor.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('');
+  }
+  
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  // Calculate perceived brightness (YIQ formula)
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  
+  // Return dark slate for light backgrounds, white for dark backgrounds
+  return brightness > 128 ? '#0f172a' : '#ffffff'; 
+};
 
   // State: Border
   const [borderWidth, setBorderWidth] = useState(4)
@@ -101,42 +126,126 @@ export default function Vistool() {
           <section id="background" className="p-8 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-xl shadow-lg scroll-mt-24">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Background</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              The background property sets the background effects for an element, including color, images, and gradients.
+              The background property sets the background effects for an element, including solid colors, images, and gradients.
             </p>
 
-            <p className="text-slate-800 dark:text-slate-200 mb-8 font-mono bg-white/50 dark:bg-slate-900/50 p-3 rounded-md border border-slate-300 dark:border-slate-700 inline-block shadow-sm text-sm">
-              background: <span className="text-sky-600 dark:text-sky-400">{bgColor}</span> <span className="text-emerald-600 dark:text-emerald-400">bg-image</span> <span className="text-purple-600 dark:text-purple-400">position/bg-size</span> <span className="text-pink-600 dark:text-pink-400">bg-repeat</span> <span className="text-amber-600 dark:text-amber-400">bg-origin</span> <span className="text-indigo-600 dark:text-indigo-400">bg-clip</span> <span className="text-rose-600 dark:text-rose-400">bg-attachment</span>;
-            </p>
+            <div className="flex flex-col gap-3 mb-8">
+              <p className="text-slate-800 dark:text-slate-200 font-mono bg-white/50 dark:bg-slate-900/50 p-3 rounded-md border border-slate-300 dark:border-slate-700 w-fit shadow-sm text-sm">
+                background-color: <span className="text-sky-600 dark:text-sky-400">{bgColor}</span>;
+              </p>
+              <p className="text-slate-800 dark:text-slate-200 font-mono bg-white/50 dark:bg-slate-900/50 p-3 rounded-md border border-slate-300 dark:border-slate-700 w-fit shadow-sm text-sm">
+                background-image: <span className="text-emerald-600 dark:text-emerald-400">linear-gradient</span>({gradDirection}, <span className="text-sky-600 dark:text-sky-400">{gradColor1}</span>, <span className="text-amber-600 dark:text-amber-400">{gradColor2}</span>);
+              </p>
+            </div>
             
-            <div className="flex gap-8">
-              <div className="w-1/3 flex flex-col gap-6">
-                <label className="flex flex-col text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Background Color
-                  <div className="flex gap-2 mt-2">
-                    <input 
-                      type="color" 
-                      value={bgColor}
-                      onChange={(e) => setBgColor(e.target.value)}
-                      className="h-10 w-12 p-0 border-0 rounded cursor-pointer shrink-0 bg-transparent" 
-                    />
-                    <input 
-                      type="text" 
-                      value={bgColor}
-                      onChange={(e) => setBgColor(e.target.value)}
-                      className="grow p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-700 dark:text-slate-300" 
-                    />
-                  </div>
-                </label>
-              </div>
+            <div className="flex flex-col gap-10">
               
-              <div className="grow flex items-center justify-center bg-slate-300/50 dark:bg-slate-900/50 rounded-xl border border-slate-300 dark:border-slate-700 p-8 min-h-75">
-                <div 
-                  className="w-full h-full rounded-lg shadow-md flex items-center justify-center text-white font-bold text-xl border border-slate-300 dark:border-slate-600 transition-colors"
-                  style={{ backgroundColor: bgColor }}
-                >
-                  Preview Box
+              {/* Row 1: Solid Color */}
+              <div className="flex gap-8">
+                <div className="w-1/3 flex flex-col gap-6">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Solid Color</h4>
+                  <label className="flex flex-col text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Background Color
+                    <div className="flex gap-2 mt-2">
+                      <input 
+                        type="color" 
+                        value={bgColor}
+                        onChange={(e) => setBgColor(e.target.value)}
+                        className="h-10 w-12 p-0 border-0 rounded cursor-pointer shrink-0 bg-transparent" 
+                      />
+                      <input 
+                        type="text" 
+                        value={bgColor}
+                        onChange={(e) => setBgColor(e.target.value)}
+                        className="grow p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-700 dark:text-slate-300" 
+                      />
+                    </div>
+                  </label>
+                </div>
+                
+                <div className="grow flex items-center justify-center bg-slate-300/50 dark:bg-slate-900/50 rounded-xl border border-slate-300 dark:border-slate-700 p-8 min-h-48">
+                  <div 
+                    className="w-full h-full rounded-lg shadow-md flex items-center justify-center font-bold text-xl border border-slate-300 dark:border-slate-600 transition-colors"
+                    style={{ 
+                      backgroundColor: bgColor,
+                      color: getContrastColor(bgColor)
+                    }}
+                  >
+                    Solid Preview
+                  </div>
                 </div>
               </div>
+
+              <hr className="border-slate-300 dark:border-slate-700" />
+
+              {/* Row 2: Linear Gradient */}
+              <div className="flex gap-8">
+                <div className="w-1/3 flex flex-col gap-6">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Linear Gradient</h4>
+                  
+                  <label className="flex flex-col text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Direction
+                    <select value={gradDirection} onChange={(e) => setGradDirection(e.target.value)} className="mt-2 p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 dark:text-slate-300">
+                      <option value="to right">to right (0deg)</option>
+                      <option value="to bottom right">to bottom right (135deg)</option>
+                      <option value="to bottom">to bottom (180deg)</option>
+                      <option value="to bottom left">to bottom left (225deg)</option>
+                      <option value="to left">to left (270deg)</option>
+                      <option value="to top left">to top left (315deg)</option>
+                      <option value="to top">to top (360deg)</option>
+                      <option value="to top right">to top right (45deg)</option>
+                    </select>
+                  </label>
+
+                  <label className="flex flex-col text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Color 1 (Start)
+                    <div className="flex gap-2 mt-2">
+                      <input 
+                        type="color" 
+                        value={gradColor1}
+                        onChange={(e) => setGradColor1(e.target.value)}
+                        className="h-10 w-12 p-0 border-0 rounded cursor-pointer shrink-0 bg-transparent" 
+                      />
+                      <input 
+                        type="text" 
+                        value={gradColor1}
+                        onChange={(e) => setGradColor1(e.target.value)}
+                        className="grow p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 dark:text-slate-300" 
+                      />
+                    </div>
+                  </label>
+
+                  <label className="flex flex-col text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Color 2 (End)
+                    <div className="flex gap-2 mt-2">
+                      <input 
+                        type="color" 
+                        value={gradColor2}
+                        onChange={(e) => setGradColor2(e.target.value)}
+                        className="h-10 w-12 p-0 border-0 rounded cursor-pointer shrink-0 bg-transparent" 
+                      />
+                      <input 
+                        type="text" 
+                        value={gradColor2}
+                        onChange={(e) => setGradColor2(e.target.value)}
+                        className="grow p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 dark:text-slate-300" 
+                      />
+                    </div>
+                  </label>
+                </div>
+                
+                <div className="grow flex items-center justify-center bg-slate-300/50 dark:bg-slate-900/50 rounded-xl border border-slate-300 dark:border-slate-700 p-8 min-h-64">
+                  <div 
+                    className="w-full h-full rounded-lg shadow-md flex items-center justify-center font-bold text-xl border border-slate-300 dark:border-slate-600 transition-all text-slate-800"
+                    style={{ 
+                      backgroundImage: `linear-gradient(${gradDirection}, ${gradColor1}, ${gradColor2})`
+                    }}
+                  >
+                    Gradient Preview
+                  </div>
+                </div>
+              </div>
+
             </div>
           </section>
 
@@ -372,10 +481,18 @@ export default function Vistool() {
                 <div className="pt-6 border-t border-slate-300 dark:border-slate-700 flex flex-col gap-3">
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Child Elements ({flexCount}/6)</span>
                   <div className="flex gap-2">
-                    <button onClick={() => setFlexCount(c => Math.min(6, c + 1))} className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setFlexCount(c => Math.min(6, c + 1))} 
+                      disabled={flexCount >= 6}
+                      className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors shadow-sm"
+                    >
                       + Add
                     </button>
-                    <button onClick={() => setFlexCount(c => Math.max(1, c - 1))} className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setFlexCount(c => Math.max(1, c - 1))} 
+                      disabled={flexCount <= 1}
+                      className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm"
+                    >
                       - Remove
                     </button>
                   </div>
@@ -521,10 +638,18 @@ export default function Vistool() {
                 <div className="pt-6 border-t border-slate-300 dark:border-slate-700 flex flex-col gap-3">
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Child Elements ({gridCount}/12)</span>
                   <div className="flex gap-2">
-                    <button onClick={() => setGridCount(c => Math.min(12, c + 1))} className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setGridCount(c => Math.min(12, c + 1))} 
+                      disabled={gridCount >= 12}
+                      className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors shadow-sm"
+                    >
                       + Add
                     </button>
-                    <button onClick={() => setGridCount(c => Math.max(1, c - 1))} className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setGridCount(c => Math.max(1, c - 1))} 
+                      disabled={gridCount <= 1}
+                      className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm"
+                    >
                       - Remove
                     </button>
                   </div>
@@ -556,6 +681,32 @@ export default function Vistool() {
             <p className="text-slate-600 dark:text-slate-400 mb-6">
               Controls the alignment and spacing of items across the horizontal axis (justify) and vertical axis (align) within flexbox or grid containers.
             </p>
+
+            {/* Align/Justify Table */}
+            <div className="overflow-hidden rounded-lg border border-slate-300 dark:border-slate-700 mb-8 bg-slate-100 dark:bg-slate-900/50 shadow-sm">
+              <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+                <thead className="bg-slate-200/80 dark:bg-slate-800/80 border-b border-slate-300 dark:border-slate-700">
+                  <tr>
+                    <th className="p-4 font-bold">Property Suffix</th>
+                    <th className="p-4 font-bold">Scope & Description</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-300 dark:divide-slate-700">
+                  <tr>
+                    <td className="p-4 font-mono text-sky-600 dark:text-sky-400">*-content</td>
+                    <td className="p-4">Aligns the <strong>entire group</strong> of items (all flex lines or grid tracks) as a single block within the container's available extra space.</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-emerald-600 dark:text-emerald-400">*-items</td>
+                    <td className="p-4">Aligns <strong>all individual items</strong> simultaneously within their respective active row, line, or grid cell space.</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-mono text-purple-600 dark:text-purple-400">*-self</td>
+                    <td className="p-4">Applied directly to a <strong>single child element</strong> to override the container's default <code className="bg-slate-200 dark:bg-slate-800 px-1 rounded">-items</code> alignment.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               <div className="grow text-slate-800 dark:text-slate-200 font-mono bg-white/50 dark:bg-slate-900/50 p-4 rounded-md border border-slate-300 dark:border-slate-700 shadow-sm text-sm">
@@ -615,19 +766,28 @@ export default function Vistool() {
                 <div className="pt-6 border-t border-slate-300 dark:border-slate-700 flex flex-col gap-3">
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Child Elements ({jaCount}/5)</span>
                   <div className="flex gap-2">
-                    <button onClick={() => setJaCount(c => Math.min(5, c + 1))} className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setJaCount(c => Math.min(5, c + 1))} 
+                      disabled={jaCount >= 5}
+                      className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors shadow-sm"
+                    >
                       + Add
                     </button>
-                    <button onClick={() => setJaCount(c => Math.max(2, c - 1))} className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setJaCount(c => Math.max(2, c - 1))} 
+                      disabled={jaCount <= 2}
+                      className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm"
+                    >
                       - Remove
                     </button>
                   </div>
                 </div>
               </div>
               
-              <div className="grow flex bg-slate-300/50 dark:bg-slate-900/50 rounded-xl border border-slate-300 dark:border-slate-700 p-8 min-h-112.5 overflow-auto">
+              {/* Preview Container */}
+              <div className="grow flex bg-slate-300/50 dark:bg-slate-900/50 rounded-xl border border-slate-300 dark:border-slate-700 p-8 min-h-112.5 overflow-hidden">
                 <div 
-                  className="w-full h-full bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-400 dark:border-slate-500 p-4 rounded-lg flex gap-4"
+                  className="w-full h-full bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-400 dark:border-slate-500 p-4 rounded-lg flex flex-wrap gap-4 overflow-auto"
                   style={{
                     justifyContent: justifyContent,
                     alignItems: alignItems
@@ -637,13 +797,13 @@ export default function Vistool() {
                     i === 1 ? (
                       <div 
                         key={i}
-                        className="w-16 min-h-16 bg-emerald-500 border-4 border-emerald-300 rounded-md flex shrink-0 items-center justify-center text-white font-bold shadow-lg p-2"
+                        className="w-14 min-h-14 bg-emerald-500 border-4 border-emerald-300 rounded-md flex shrink-0 items-center justify-center text-white font-bold shadow-lg p-2"
                         style={{ alignSelf: alignSelf }}
                       >
                         2
                       </div>
                     ) : (
-                      <div key={i} className="w-16 min-h-16 bg-sky-500 rounded-md flex shrink-0 items-center justify-center text-white font-bold shadow-md p-2">
+                      <div key={i} className="w-14 min-h-14 bg-sky-500 rounded-md flex shrink-0 items-center justify-center text-white font-bold shadow-md p-2">
                         {i + 1}
                       </div>
                     )
@@ -677,10 +837,18 @@ export default function Vistool() {
                 <div className="pt-6 border-t border-slate-300 dark:border-slate-700 flex flex-col gap-3">
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Elements ({marginCount}/7)</span>
                   <div className="flex gap-2">
-                    <button onClick={() => setMarginCount(c => Math.min(7, c + 1))} className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setMarginCount(c => Math.min(7, c + 1))} 
+                      disabled={marginCount >= 7}
+                      className="grow px-4 py-2 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors shadow-sm"
+                    >
                       + Add
                     </button>
-                    <button onClick={() => setMarginCount(c => Math.max(1, c - 1))} className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm">
+                    <button 
+                      onClick={() => setMarginCount(c => Math.max(1, c - 1))} 
+                      disabled={marginCount <= 1}
+                      className="grow px-4 py-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-800 dark:text-slate-200 font-medium rounded-md transition-colors shadow-sm"
+                    >
                       - Remove
                     </button>
                   </div>
@@ -774,6 +942,26 @@ export default function Vistool() {
                     <option value="sticky">sticky</option>
                   </select>
                 </label>
+
+                {/* Dynamic Info Box */}
+                <div className="pt-2">
+                  <div 
+                    key={posType} 
+                    className="p-4 bg-sky-100/50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 shadow-sm animate-fade-in-up"
+                  >
+                    <strong className="text-sky-700 dark:text-sky-400 mb-1 uppercase tracking-wider text-xs flex items-center gap-1.5">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      {posType}
+                    </strong>
+                    <p className="mt-2 text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {posType === 'static' && 'The default behavior. The element is positioned according to the normal document flow. Top, right, bottom, left, and z-index properties have no effect.'}
+                      {posType === 'relative' && 'The element is positioned according to the normal document flow, but can be offset relative to itself. It leaves a gap where it would normally be.'}
+                      {posType === 'absolute' && 'The element is removed from the normal document flow and positioned relative to its closest positioned ancestor. Other elements ignore it completely.'}
+                      {posType === 'fixed' && 'The element is removed from the normal document flow and positioned relative to the viewport. It stays in the exact same place even when scrolled.'}
+                      {posType === 'sticky' && 'The element behaves like a relative element until it reaches a specified scroll offset, then it "sticks" in place like a fixed element.'}
+                    </p>
+                  </div>
+                </div>
 
                 <div className="pt-6 border-t border-slate-300 dark:border-slate-700">
                   <label className="flex flex-col text-sm font-medium text-slate-700 dark:text-slate-300">
