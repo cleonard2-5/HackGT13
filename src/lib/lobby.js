@@ -104,6 +104,39 @@ export async function advanceToResults(code) {
   await updateDoc(doc(db, "lobbies", code), { status: "results" });
 }
 
+// Per CLAUDE.md: after results, always back to Lobby Settings — no "Play
+// Again" fork. Any player can call this; racing writes are harmless since
+// they all set the same value.
+export async function returnToLobby(code) {
+  await updateDoc(doc(db, "lobbies", code), { status: "lobby" });
+}
+
+// General rule, not a host-leaving special case: whoever explicitly leaves
+// is removed from players, and if they happened to be the host, the new
+// first remaining player inherits hostId. This covers a host leaving after
+// round 1, after results, or never — it's all the same code path. An empty
+// players array (host included) is left with hostId: null as the signal
+// that the lobby is abandoned.
+//
+// Read-then-write, same as joinLobby — not transactional, so two players
+// leaving in the same instant could race and one's removal could be
+// clobbered by the other's write. Same tolerance level as the rest of this
+// hackathon build; a player who already left has already navigated away, so
+// a stale entry surviving one race is cosmetic, not a lost-work problem.
+export async function leaveLobby(code, playerId) {
+  const ref = doc(db, "lobbies", code);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+  const remainingPlayers = (data.players || []).filter((p) => p.id !== playerId);
+  const updates = { players: remainingPlayers };
+  if (data.hostId === playerId) {
+    updates.hostId = remainingPlayers.length > 0 ? remainingPlayers[0].id : null;
+  }
+  await updateDoc(ref, updates);
+}
+
 // Round doc id matches the lobby code, one lobby = one round at a time.
 export async function startRound(code) {
   const lobbyRef = doc(db, "lobbies", code);
